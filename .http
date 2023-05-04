@@ -1,0 +1,8 @@
+POST /register HTTP/1.1
+Host: localhost:8080/api/auth
+Content-Type: application/json
+
+{
+    "username":"root",
+    "password":"secret"
+}
