@@ -26,7 +26,7 @@ app.use('/api/auth', authRoute)
 async function start() {
     try {
         await mongoose.connect(`mongodb://${DB_HOST}:${DB_PORT}/${DB_NAME}`,
-            console.log('connect to db successed')
+            console.log('connecting to db...')
         )
         app.listen(SERVER_PORT, () => console.log(`server started on port ${SERVER_PORT}`))
     } catch (error) {
