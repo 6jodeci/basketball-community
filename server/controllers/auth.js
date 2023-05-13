@@ -1,6 +1,7 @@
 import User from "../models/User.js"
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
+
 // Register user
 export const register = async (req, res) => {
     try {
@@ -9,8 +10,8 @@ export const register = async (req, res) => {
         const isUsed = await User.findOne({ username })
 
         if (isUsed) {
-            return res.status(402).json({
-                message: "this username already in used"
+            return res.json({
+                message: 'Имя пользователя уже используется',
             })
         }
 
@@ -18,32 +19,43 @@ export const register = async (req, res) => {
         const hash = bcrypt.hashSync(password, salt)
 
         const newUser = new User({
-            username, password: hash,
+            username,
+            password: hash,
         })
+
+        const token = jwt.sign(
+            {
+                id: newUser._id,
+            },
+            process.env.TOKEN_SYMMETRIC_KEY,
+            { expiresIn: process.env.TOKEN_EXPIRES },
+        )
 
         await newUser.save()
 
         res.json({
-            newUser, message: 'successfully registrated'
+            newUser,
+            token,
+            message: 'Регистрация прошла успешно',
         })
-
     } catch (error) {
-        res.json({ message: 'failed to create user' })
+        res.json({ message: 'Ошибка при создании пользователя' })
     }
 }
+
 // Login user
 export const login = async (req, res) => {
     try {
         const { username, password } = req.body
         const user = await User.findOne({ username })
         if (!user) {
-            return res.json({ message: 'user doesn\'t exist' })
+            return res.json({ message: 'Пользователь не существует' })
         }
 
         const isPasswordCorrect = await bcrypt.compare(password, user.password)
 
         if (!isPasswordCorrect) {
-            return res.json({ message: 'incorrect password' })
+            return res.json({ message: 'Неверное имя пользователя или пароль' })
         }
 
         const token = jwt.sign({
@@ -51,9 +63,9 @@ export const login = async (req, res) => {
         }, process.env.TOKEN_SYMMETRIC_KEY,
             { expiresIn: process.env.TOKEN_EXPIRES })
 
-        res.json({ token, user, message: 'You successfully log in' })
+        res.json({ token, user, message: 'Вы успешно вошли' })
     } catch (error) {
-        res.json({ message: 'failed to login user' })
+        res.json({ message: 'Ошибка авторизации пользователя' })
     }
 }
 // GetMe user
@@ -62,7 +74,7 @@ export const getMe = async (req, res) => {
         const user = await User.findById(req.userId)
 
         if (!user) {
-            return res.json({ message: 'user doesn\'t exist' })
+            return res.json({ message: 'Пользователя не существует' })
         }
 
         const token = jwt.sign({
@@ -72,6 +84,6 @@ export const getMe = async (req, res) => {
 
         res.json({ token, user })
     } catch (error) {
-        res.json({ message: 'no access' })
+        res.json({ message: 'Нет доступа' })
     }
 }

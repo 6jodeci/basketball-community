@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose'
 
 const UserSchema = new mongoose.Schema(
     {
@@ -11,10 +11,11 @@ const UserSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        posts: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Post',
-        },
+        posts: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Post',
+            },
         ],
     },
     { timestamps: true },
