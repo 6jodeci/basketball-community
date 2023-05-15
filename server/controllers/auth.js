@@ -2,7 +2,7 @@ import User from "../models/User.js"
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
-// Register user
+// Регистрация пользователя
 export const register = async (req, res) => {
     try {
         const { username, password } = req.body
@@ -43,29 +43,41 @@ export const register = async (req, res) => {
     }
 }
 
-// Login user
+// Логин пользователя
 export const login = async (req, res) => {
     try {
         const { username, password } = req.body
         const user = await User.findOne({ username })
+
         if (!user) {
-            return res.json({ message: 'Пользователь не существует' })
+            return res.json({
+                message: 'Пользователь не существует',
+            })
         }
 
         const isPasswordCorrect = await bcrypt.compare(password, user.password)
 
         if (!isPasswordCorrect) {
-            return res.json({ message: 'Неверное имя пользователя или пароль' })
+            return res.json({
+                message: 'Неверный пароль',
+            })
         }
 
-        const token = jwt.sign({
-            id: user._id,
-        }, process.env.TOKEN_SYMMETRIC_KEY,
-            { expiresIn: process.env.TOKEN_EXPIRES })
+        const token = jwt.sign(
+            {
+                id: user._id,
+            },
+            process.env.TOKEN_SYMMETRIC_KEY,
+            { expiresIn: process.env.TOKEN_EXPIRES },
+        )
 
-        res.json({ token, user, message: 'Вы успешно вошли' })
+        res.json({
+            token,
+            user,
+            message: 'Вы вошли в систему',
+        })
     } catch (error) {
-        res.json({ message: 'Ошибка авторизации пользователя' })
+        res.json({ message: 'Ошибка при авторизации' })
     }
 }
 // GetMe user
@@ -74,7 +86,7 @@ export const getMe = async (req, res) => {
         const user = await User.findById(req.userId)
 
         if (!user) {
-            return res.json({ message: 'Пользователя не существует' })
+            return res.json({ message: 'Пользователь не существует' })
         }
 
         const token = jwt.sign({

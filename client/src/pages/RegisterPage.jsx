@@ -1,28 +1,30 @@
 import React, { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
-import { registerUser } from '../redux/features/auth/authSlice'
+import { registerUser, checkIsAuth } from '../redux/features/auth/authSlice'
 import { toast } from 'react-toastify'
 
 export const RegisterPage = () => {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const { status } = useSelector((state) => state.auth)
-    console.log(status)
+    const isAuth = useSelector(checkIsAuth)
 
+    const navigate = useNavigate()
     const dispatch = useDispatch()
 
     useEffect(() => {
         if (status) {
             toast(status)
         }
-    }, [status])
+        if (isAuth) navigate('/')
+    }, [status, isAuth, navigate])
 
     const handleSubmit = () => {
         try {
             dispatch(registerUser({ username, password }))
-            setUsername('')
             setPassword('')
+            setUsername('')
         } catch (error) {
             console.log(error)
         }
@@ -35,7 +37,7 @@ export const RegisterPage = () => {
         >
             <h1 className='text-lg text-white text-center'>Регистрация</h1>
             <label className='text-xs text-gray-400'>
-                Имя пользователя:
+                Username:
                 <input
                     type='text'
                     value={username}
@@ -46,7 +48,7 @@ export const RegisterPage = () => {
             </label>
 
             <label className='text-xs text-gray-400'>
-                Пароль:
+                Password:
                 <input
                     type='password'
                     value={password}
@@ -62,13 +64,13 @@ export const RegisterPage = () => {
                     onClick={handleSubmit}
                     className='flex justify-center items-center text-xs bg-gray-600 text-white rounded-sm py-2 px-4'
                 >
-                    Создать аккаунт
+                    Подтвердить
                 </button>
                 <Link
                     to='/login'
                     className='flex justify-center items-center text-xs text-white'
                 >
-                    Уже есть аккаунт?
+                    Уже зарегистрированы ?
                 </Link>
             </div>
         </form>
